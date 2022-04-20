@@ -132,3 +132,51 @@ main {
         height: 2vw;
     }
 }
+
+/* like comment */
+.smaller-like {
+    font-size: 12px;
+    padding-bottom: 1rem;
+    }
+
+.like-comments {
+    display: flex;
+    flex-direction: column;
+}
+
+.like-comments img {
+    width: 15px;
+}
+
+.like-comments button {
+    border: none;
+}
+
+/* replies */ 
+.reply-button {
+    border: none;
+    width: 50px;
+    height: 30px;
+    border-radius: 19%;
+    background-color: #96b5c8;
+}
+
+.replies-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.reply-form {
+    display: flex;
+    justify-content: space-between;
+}
+
+
+.replies-comment-form input:nth-child(3) {
+    border-radius: 15px;
+    width: 70%;
+    height: 35px;
+    background-color: #999998;
+    border: none;
+}

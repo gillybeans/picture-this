@@ -38,3 +38,34 @@ if (isset($_POST['like-post'])) {
 
     redirect('/');
 }
+
+if (isset($_POST['like-comment'])) {
+    $commentId = (int) $_POST['like-comment'];
+    $userId = (int) $_SESSION['user']['id'];
+
+    if (userHasLikedComment($pdo, $userId, $commentId)) {
+        $removeCommentLike = $pdo->prepare('DELETE FROM comments_likes WHERE comment_id = :comment_id AND comment_liked_by_user_id = :comment_liked_by_user_id');
+
+        if (!$removeCommentLike) {
+            die(var_dump($pdo->errorInfo()));
+        }
+
+        $removeCommentLike->execute([
+            ':comment_id'          => $commentId,
+            ':comment_liked_by_user_id' => $userId,
+        ]);
+    } else {
+        $commentLike = $pdo->prepare('INSERT INTO comments_likes (comment_id, comment_liked_by_user_id) VALUES (:comment_id, :comment_liked_by_user_id)');
+
+        if (!$commentLike) {
+            die(var_dump($pdo->errorInfo()));
+        }
+
+        $commentLike->execute([
+            ':comment_id'          => $commentId,
+            ':comment_liked_by_user_id' => $userId,
+        ]);
+    }
+
+    redirect('/');
+}

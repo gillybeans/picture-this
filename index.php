@@ -35,6 +35,7 @@ $user = getUserById((int) $userId, $pdo);
 
         <?php
         $posts = getAllPosts($pdo);
+        $comments = getAllComments($pdo);
         foreach ($posts as $post) {
             $postId = $post['id'];
             $postUser = (int) $post['user_id']; ?>
@@ -72,8 +73,13 @@ $user = getUserById((int) $userId, $pdo);
                
 
                 <?php
+                global $userThatHasLiked;
                 $likedPost = userHasLiked($pdo, (int) $userId, (int) $postId);
-            $userThatHasLiked = $likedPost['liked_by_user_id']; ?>
+                if(is_array($likedPost)){
+                    $userThatHasLiked = $likedPost['liked_by_user_id'];
+                }
+                ?>
+                
                 <div class="post__text-content">
                     <div class="post__text-content-header w-full">
                         <div class="flex">
@@ -141,6 +147,7 @@ $user = getUserById((int) $userId, $pdo);
                             <?php $comments = getCommentsById($pdo, (int) $postId); ?>
                             <?php if ($comments) { ?>
                                 <?php foreach ($comments as $comment) { ?>
+                                    <?php $commentId = $comment['id']; ?>
 
                                     <div class="comment-containers">
                                         <div class="username-comment">
@@ -152,35 +159,104 @@ $user = getUserById((int) $userId, $pdo);
                                         <?php if ($user['first_name'] == $comment['username']) { ?>
 
                                             <form action="/app/posts/edit-comment.php" method="post">
-                                                <input type="hidden" name="post-id-edit" value="<?php echo $comment['comment_id']; ?>">
-                                                <input class ="edit-input" type="text" name="edit-comment">
+                                                <input type="hidden" name="post-id-edit" value="<?php echo $comment['id']; ?>">
+                                                <input class="edit-input" type="text" name="edit-comment">
                                                 <button type="submit">Edit</button>
                                             </form>
 
                                             <form action="/app/posts/delete-comment.php" method="post">
-                                                <input type="hidden" name="post-id-delete" value="<?php echo $comment['comment_id']; ?>">
+                                                <input type="hidden" name="post-id-delete" value="<?php echo $comment['id']; ?>">
                                                 <button type="submit">Delete</button>
                                             </form>
 
                                         <?php } ?>
-                                        
+                                
+                                        <div class="date"></div>
+                                        <p>
+                                            <?php
+                                            $postedDate = $post['date'];
+                                            echo postedAgo($postedDate); ?>
+                                        </p>
                                     </div>
-                                </div>
 
+
+                                    <!-- Them likes -->
+                                    
+                                <div class="like-comments">
+                                        <form action="/app/posts/like.php" method="post">
+
+                                            <button class="like-comment-button" name="like-comment" value="<?php echo $comment['id']; ?>">
+                                                <?php $userHasLikedComment = userHasLikedComment($pdo, $userId, $commentId);
+                                                if (is_array($userHasLikedComment)) {
+                                                    $userThatHasLikedComment = $userHasLikedComment['comment_liked_by_user_id']
+                                                    ?>
+                                                    <img src="/views/icons/liked.svg" alt="Comment is liked">
+                                                <?php } else { ?>
+                                                    <img src="/views/icons/heart.svg" alt="Comment is not liked">
+                                                <?php } ?>
+
+                                            </button>
+                                        </form>
+                                    </div>
+
+                    <div class="number-of-comment-likes">
+                        <?php
+                        $commentLikes = numberOfLikesComment($pdo, (int) $commentId); ?>
+                        <?php foreach ($commentLikes as $commentLike) { ?>
+                            <?php if ($commentLike == 0) { ?>
+                                <h5 class="smaller-like">Be the first one to like this comment</h5>
+                            <?php } elseif ($commentLike == 1) { ?>
+                                <h5 class="smaller-like"><?php echo $commentLike; ?> person likes this</h5>
+                            <?php } else { ?>
+                                <h5 class="smaller-like"><?php echo $commentLike; ?> people likes this</h5>
                             <?php } ?>
                         <?php } ?>
+                    </div>
 
+
+                    <!-- Reply-conatiner -->
+
+                    <div class="reply-form">
+                    <div class="replies-container">
+                        <form action="/app/posts/insert-reply.php" method="post" class="replies-comment-form">
+                            <input type="hidden" name="first-name" value="<?php echo $user['first_name']; ?>">
+                            <input type="hidden" name="comment-id" value="<?php echo $comment['id']; ?>">
+                            <input type="text" name="reply">
+                            <button type="submit" class="reply-button">Reply</button>
+                        </form>
+                    
+                        <?php $replies = getRepliesById($pdo, (int) $commentId); ?>
+                        <?php if ($replies) { ?>
+                            <?php foreach ($replies as $reply) { ?>
+                                <div class="comment-containers">
+                                    <div class="username-comment">
+                                        <h5 class="username"><?php echo $reply['username']; ?> replied: </h5>
+                                        <p class="content"><?php echo $reply['content']; ?></p>
+                                    </div>
+                                </div>
                         </div>
-
-
+                     </div>
                      </div>
 
-                    
+                     <?php } ?>
+                        <?php } ?>
+                        </div>
+                    </div>
+
+                                </div>
+
+                                    </div>
+
                     <p id="output"></p>
                 </div>
             </div>
         <?php
-        } ?>
+        } 
+    }
+}
+
+?>?>
+        
     </section>
 </main>
 

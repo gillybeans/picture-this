@@ -61,7 +61,7 @@ $user = getUserById((int) $userId, $pdo);
             <div class="flex-col-cen">
                 <h5>Followers</h5>
                 <p>
-                    <?php echo followersCount($pdo, (int) $userId); ?>
+                    0
                 </p>
             </div>
             <div class="flex-col-cen">

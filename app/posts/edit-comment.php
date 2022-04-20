@@ -8,16 +8,16 @@ if (isset($_POST['post-id-edit'], $_POST['edit-comment'])) {
     }
 
     $postId = $_POST['post-id-edit'];
-    $Comment = trim($_POST['edit-comment']);
+    $comment = trim($_POST['edit-comment']);
     $dateAndTime = date('Y-m-d-h-i-s-a');
 
-    $statement = $pdo->prepare('UPDATE comments SET content = :comment, date_posted = :date WHERE comment_id = :id');
+    $statement = $pdo->prepare('UPDATE comments SET content = :comment, date_posted = :date WHERE id = :id');
 
     sqlQueryError($pdo, $statement);
 
     $statement->execute([
         'id'      => $postId,
-        'comment' => $Comment,
+        'comment' => $comment,
         'date'    => $dateAndTime,
     ]);
 }

@@ -1,5 +1,5 @@
 .comment-container form {
-    display: flex;
+    /*display: flex;*/
     justify-content: space-between;
 }
 
@@ -30,7 +30,8 @@
 .comment-containers {
     display: flex;
     justify-content: space-between;
-    margin: 5px 0px 5px 0px;
+    margin: 5px 0px 0px 0px;
+    flex-direction: column;
 }
 
 .username {
@@ -43,4 +44,5 @@
 
 .username-comment {
     display: flex;
+    /*flex-direction: column;*/
 }

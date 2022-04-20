@@ -262,6 +262,31 @@ function userHasLiked(PDO $pdo, int $userId, int $postId)
 }
 
 /**
+ * Checking if user has liked comment.
+ *
+ * @param PDO $pdo
+ * @param int $userId
+ * @param int $commentId
+ *
+ * @return array
+ */
+function userHasLikedComment(PDO $pdo, int $userId, int $commentId)
+{
+    $statement = $pdo->prepare('SELECT * FROM comments_likes WHERE comment_id = :comment_id AND comment_liked_by_user_id = :user_id');
+
+    sqlQueryError($pdo, $statement);
+
+    $statement->execute([
+        ':user_id' => $userId,
+        ':comment_id' => $commentId,
+    ]);
+
+    $commentIsLiked = $statement->fetch(PDO::FETCH_ASSOC);
+
+    return $commentIsLiked;
+}
+
+/**
  * Get number of likes on a post.
  *
  * @param PDO $pdo
@@ -283,6 +308,30 @@ function numberOfLikes(PDO $pdo, int $postId)
 
     return $likes;
 }
+
+/**
+ * Get number of likes on a comment.
+ *
+ * @param PDO $pdo
+ * @param int $commentId
+ *
+ * @return int
+ */
+function numberOfLikesComment(PDO $pdo, int $commentId)
+{
+    $statement = $pdo->prepare('SELECT COUNT(comment_id) FROM comments_likes where comment_id = :comment_id');
+
+    sqlQueryError($pdo, $statement);
+
+    $statement->execute([
+        ':comment_id' => $commentId,
+    ]);
+
+    $commentLikes = $statement->fetch(PDO::FETCH_ASSOC);
+
+    return $commentLikes;
+}
+
 
 /////////////////////////// FOLLOW ///////////////////////////
 
@@ -319,19 +368,18 @@ function isFollowing(PDO $pdo, int $follower, int $isFollowingUserId)
  *
  * @return void
  */
-function followersCount(PDO $pdo, int $userId)
+function followersCount(PDO $pdo, int $follower, int $isFollowingUserId)
 {
-    $statement = $pdo->prepare('SELECT * FROM follows WHERE following_user_id = :userId');
+    $statement = $pdo->prepare('SELECT * FROM follows WHERE user_id = :user_id AND following_user_id = :is_following_id');
 
     sqlQueryError($pdo, $statement);
 
     $statement->execute([
-        ':follower' => $userId,
+        ':user_id' => $follower,
+        ':is_following_id' => $isFollowingUserId
     ]);
 
-    $followersCount = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-    $followers = count($followersCount);
+    $followers = $statement->fetch(PDO::FETCH_ASSOC);
 
     return $followers;
 }
@@ -361,6 +409,24 @@ function followingsCount(PDO $pdo, int $follower)
     return $followings;
 }
 
+
+/////////////////////////// COMMENTS ///////////////////////////
+
+function getAllComments($pdo)
+{
+
+    $statement = $pdo->prepare('SELECT comments.id, comments.post_id, users.first_name, users.last_name, users.avatar FROM comments JOIN users ON comments.username = users.first_name ORDER BY comments.date_posted DESC');
+
+    sqlQueryError($pdo, $statement);
+
+    $statement->execute();
+
+    $comments = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+    return $comments;
+}
+
+
 /**
  * Returns comments by post id.
  *
@@ -382,4 +448,27 @@ function getCommentsById(PDO $pdo, int $postId)
     $comments = $statement->fetchAll(PDO::FETCH_ASSOC);
 
     return $comments;
+}
+
+/**
+ * Returns replies by comment id.
+ *
+ * @param int $commentId
+ * @param PDO $pdo
+ *
+ * @return array
+ */
+function getRepliesById(PDO $pdo, int $commentId)
+{
+    $statement = $pdo->prepare('SELECT * FROM replies WHERE replies.comment_id = :id ORDER BY date_posted DESC');
+
+    sqlQueryError($pdo, $statement);
+
+    $statement->execute([
+        'id' => $commentId,
+    ]);
+
+    $replies = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+    return $replies;
 }
